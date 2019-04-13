@@ -7,6 +7,11 @@ import java.util.Scanner;
 
 public class Global {
 
+    // https://space.bilibili.com/ajax/member/getSubmitVideos?mid=777536&pagesize=30&tid=0&page=1&keyword=&order=pubdate
+    public static String usersBasicCSVV = "followings-1554013692072.csv";
+    public static String top200TXT = "30plus.txt";
+    public static String top30TXT = "100plus.txt";
+
     public static String httpGet(String urlStr) {
         String result = "";
         BufferedReader in = null;

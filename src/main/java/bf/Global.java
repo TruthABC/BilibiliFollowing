@@ -24,7 +24,7 @@ public class Global {
             connection.connect();
 
             in = new BufferedReader(new InputStreamReader(
-                    connection.getInputStream()));
+                    connection.getInputStream(), "utf-8"));
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;

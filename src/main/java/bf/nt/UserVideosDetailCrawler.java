@@ -6,8 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserVideosDetailCrawler {
@@ -16,7 +16,7 @@ public class UserVideosDetailCrawler {
     public static final String BASE_URL_VIEW = "http://api.bilibili.com/x/web-interface/view?aid=";
     public static final String BASE_URL_STAT = "https://api.bilibili.com/x/web-interface/archive/stat?aid=";
 
-    private Map<Integer, UserVideo> mUserVideos;
+    private List<UserVideo> mUserVideos;
 
     public void initializeBasicFromCSVV(String path) {
         Scanner scanner = Global.getFileScanner(path);
@@ -24,21 +24,20 @@ public class UserVideosDetailCrawler {
             return;
         }
 
-        mUserVideos = new HashMap<>();
+        mUserVideos = new ArrayList<>();
         scanner.nextLine();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] parts = line.split(",");
-            int aid = Integer.parseInt(parts[2]);
             UserVideo uv = new UserVideo(
                     Integer.parseInt(parts[0]),
                     parts[1],
-                    aid,
+                    Integer.parseInt(parts[2]),
                     parts[3],
                     Long.parseLong(parts[4]),
                     parts[5],
                     parts[6]);
-            mUserVideos.put(aid, uv);
+            mUserVideos.add(uv);
         }
     }
 
@@ -53,20 +52,21 @@ public class UserVideosDetailCrawler {
         output.println();
 
 //        boolean flag = false;
-        try {
-            for (int aid : mUserVideos.keySet()) {
-//                if (aid == 13255673) { //日语吹替“乌鸦坐飞机”！山下配音阿福的全部技能，想不想学？
-//                    flag = true;
-//                }
-//                if (!flag) {
-//                    continue;
-//                }
-                UserVideo uv = mUserVideos.get(aid);
+        for (int i=0; i<mUserVideos.size(); i++) {
+//            if (aid == 13255673) { //日语吹替“乌鸦坐飞机”！山下配音阿福的全部技能，想不想学？
+//                flag = true;
+//            }
+//            if (!flag) {
+//                continue;
+//            }
+            UserVideo uv = mUserVideos.get(i);
+            try {
                 crawlWhilePrintWithView(uv, output);
                 //crawlWhilePrintWithStat(uv, output);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            output.println();
         }
 
         output.flush();
@@ -125,7 +125,7 @@ public class UserVideosDetailCrawler {
 //        output.println();
 //    }
 
-    private void crawlWhilePrintWithView(UserVideo userVideoBasic, PrintStream output) throws InterruptedException {
+    private void crawlWhilePrintWithView(UserVideo userVideoBasic, PrintStream output) throws Exception {
         System.out.println("[ " + mCounter++ + " ] aid: " + userVideoBasic.getAid() + "; title: " + userVideoBasic.getTitle());
         if (mCounter % 40 == 0) {
             Thread.sleep(1*60*1000);
@@ -147,13 +147,7 @@ public class UserVideosDetailCrawler {
         //ret.data ->
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = parser.parse(response).getAsJsonObject();
-        try {
-            jsonObject = jsonObject.get("data").getAsJsonObject();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            output.println();
-            return;
-        }
+        jsonObject = jsonObject.get("data").getAsJsonObject();
 
         //ret.data -> {*}
         int duration = jsonObject.get("duration").getAsInt(); // 584 // -> "09:44"
@@ -170,11 +164,9 @@ public class UserVideosDetailCrawler {
         int favorite = jsonObject.get("favorite").getAsInt(); //111792 //收藏
 
         //Print them directly - 2: detail
-        tname = tname.replace(',','，');
-        tname = tname.replace('\n','#');
         output.print("," + duration);
         output.print("," + tid);
-        output.print("," + tname);
+        output.print("," + new String(tname.getBytes("GBK"),"GBK"));
 
         //Print them directly - 3: statistics
         output.print("," + view);
@@ -183,7 +175,6 @@ public class UserVideosDetailCrawler {
         output.print("," + like);
         output.print("," + coin);
         output.print("," + favorite);
-        output.println();
     }
 
 }

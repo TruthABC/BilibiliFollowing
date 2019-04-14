@@ -22,6 +22,7 @@ public class UserVideo {
     //ret.data ->
     //private int aid; //49025020
     //private long ctime; //1555003187
+    //private String desc; //"四月新番吐槽第二弹，第一弹请看av48719020↵喜欢的观众请点个关注，并长按视频下放的大拇指一键三连支持下up主，拜托啦这对我真的很重要啊！↵反响好的话，会继续高产！"
     private int duration; // 584 // -> "09:44"
 
     private int tid; //27
@@ -38,9 +39,20 @@ public class UserVideo {
     private int favorite; //111792 //收藏
 
     public UserVideo() {}
+
     public UserVideo(int mid, String author) {
         this.mid = mid;
         this.author = author;
+    }
+
+    public UserVideo(int mid, String author, int aid, String title, long created, String length, String pic) {
+        this.mid = mid;
+        this.author = author;
+        this.aid = aid;
+        this.title = title;
+        this.created = created;
+        this.length = length;
+        this.pic = pic;
     }
 
     public int getMid() {
@@ -98,6 +110,14 @@ public class UserVideo {
     public void setPic(String pic) {
         this.pic = pic;
     }
+
+//    public String getDesc() {
+//        return desc;
+//    }
+
+//    public void setDesc(String desc) {
+//        this.desc = desc;
+//    }
 
     public int getDuration() {
         return duration;
